@@ -5,40 +5,40 @@
 #include "lib/emojis.h"
 
 #define MSG_BUFF_SIZE 1024
-void on_message(
-  struct discord *client,
-  const struct discord_user *bot,
-  const struct discord_message *msg)
+void on_message(struct discord *client, 
+                const struct discord_user *bot, 
+                const struct discord_message *msg)
 {
-    char *msg_buffer = calloc(1, 256);
-    if(NULL == msg_buffer) {
-      log_info("[!] Failed to create message buffer");
-      return;
-    }
+  char *msg_buffer = calloc(1, 256);
+  if(NULL == msg_buffer) {
+    log_info("[!] Failed to create message buffer");
+     return;
+  }
 
-    snprintf(msg_buffer, MSG_BUFF_SIZE, "Hello, %s#%s.", 
-      msg->author->username,
-      msg->author->discriminator);
+  snprintf(msg_buffer, 
+           MSG_BUFF_SIZE, 
+           "Hello, %s#%s.",
+           msg->author->username,
+           msg->author->discriminator);
 
-    struct discord_create_message_params params = { 
-      .content = msg_buffer
-    };
-	
-    if(msg->author->bot || msg->referenced_message) {
-      log_info("msg->author->bot or msg->referenced_message is null");
-      return;
-    }
+  struct discord_create_message_params params = { 
+    .content = msg_buffer
+  };
 
-    discord_create_reaction(client, msg->channel_id, msg->id, 0, THUMBSUP);
-    discord_create_message(client, msg->channel_id, &params, NULL);
-    
-    free(msg_buffer);
-  
+  /* Don't respond to ourselves */	
+  if(msg->author->bot || msg->referenced_message) {
+    return;
+  }
+
+  /* Thumbsup and say "Hello <user>#<discriminator> */
+  discord_create_reaction(client, msg->channel_id, msg->id, 0, THUMBSUP);
+  discord_create_message(client, msg->channel_id, &params, NULL);
+
+  free(msg_buffer);
 }
 
-void on_ready(
-  struct discord *client, 
-  const struct discord_user *bot) 
+void on_ready(struct discord *client, 
+              const struct discord_user *bot) 
 {
   log_info("Logged in as %s!", bot->username);
 }
@@ -51,5 +51,6 @@ int main() {
   discord_run(client);
 
   discord_cleanup(client);
+  
   return 0;
 }
