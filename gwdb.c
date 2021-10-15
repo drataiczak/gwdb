@@ -2,9 +2,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <orca/discord.h>
+
+#include <curl/curl.h>
+
 #include "lib/emojis.h"
+#include "lib/gw2_api.h"
 
 #define MSG_BUFF_SIZE 1024
+
+void curl_handler(void *ptr, size_t size, size_t nmemb, void *stream) {
+  log_info("%s", ptr);
+}
 void on_message(struct discord *client, 
                 const struct discord_user *bot, 
                 const struct discord_message *msg)
@@ -33,6 +41,33 @@ void on_message(struct discord *client,
   /* Thumbsup and say "Hello <user>#<discriminator> */
   discord_create_reaction(client, msg->channel_id, msg->id, 0, THUMBSUP);
   discord_create_message(client, msg->channel_id, &params, NULL);
+
+  if(0 == strcmp("!pvedaily", msg->content)) {
+    CURL *curl = curl_easy_init();
+
+    if(curl) {
+      CURLcode resp;
+
+      char *url = NULL;
+      url = calloc(1, 256);
+      if(NULL == url) {
+        log_info("[!] Unable to calloc URL buffer");
+        return;
+      }
+
+      strcpy(url, BASE_URL);
+      strcat(url, API_VERS);
+      strcat(url, "/");
+      strcat(url, ACHIEVEMENTS_ENDPOINT);
+      strcat(url, "/daily");
+
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_handler);
+      curl_easy_setopt(curl, CURLOPT_URL, url);
+      resp = curl_easy_perform(curl);
+
+      curl_easy_cleanup(curl);
+    }
+  }
 
   free(msg_buffer);
 }
