@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "discord.h"
+#include <orca/discord.h>
 #include "lib/emojis.h"
 
 #define MSG_BUFF_SIZE 1024

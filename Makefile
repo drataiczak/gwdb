@@ -17,9 +17,11 @@ EXES := $(patsubst %.c, %.out, $(SRC))
 # -std=c11 tells the compiler to build against c11 standard
 # -O0 no optimization
 # -g keep this for debugging with gdb
-CFLAGS  := -I. -I$(TOP) -I$(TOP)/cee-utils             \
+#CFLAGS  := -I. -I$(TOP) -I$(TOP)/cee-utils             \
            -I$(TOP)/common -I$(TOP)/common/third-party \
            -Wall -std=c11 -O0 -g
+
+CFLAGS := -Wall -std=c11 -O0 -g
 
 # -L links to a folder where a lib dependency resides
 # -ldiscord links against libdiscord.a
