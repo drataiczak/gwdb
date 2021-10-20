@@ -8,6 +8,8 @@
 #include "lib/emojis.h"
 #include "lib/gw2_api.h"
 
+#include <callback.h>
+
 #define MSG_BUFF_SIZE 1024
 
 void curl_handler(void *ptr, size_t size, size_t nmemb, void *stream) {
@@ -72,16 +74,11 @@ void on_message(struct discord *client,
   free(msg_buffer);
 }
 
-void on_ready(struct discord *client, 
-              const struct discord_user *bot) 
-{
-  log_info("Logged in as %s!", bot->username);
-}
 
 int main() {
   struct discord *client = discord_config_init("config.json");
 
-  discord_set_on_ready(client, &on_ready);
+  discord_set_on_ready(client, &on_ready_cb);
   discord_set_on_message_create(client, &on_message);
   discord_run(client);
 
